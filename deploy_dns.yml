@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Service
+spec:
+  selector:
+    app: fs
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+      nodePort: 30002
+  type: NodePort
+metadata:
+  name: fs-service
+---
+apiVersion: v1
+kind: Service
+spec:
+  selector:
+    app: as
+  ports:
+    - protocol: UDP
+      port: 53533
+      targetPort: 53533
+      nodePort: 30001
+  type: NodePort
+metadata:
+  name: as-service
+---
+apiVersion: v1
+kind: Service
+spec:
+  selector:
+    app: us
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30003
+  type: NodePort
+metadata:
+  name: us-service
+---
+apiVersion: apps/v1
+kind: Deployment
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fs
+  template:
+    metadata:
+      labels:
+        app: fs
+    spec:
+      containers:
+        - name: fs
+          image: FS/Dockerfile
+          ports:
+            - containerPort: 9090
+metadata:
+  name: fs-deployment
+
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: us
+  template:
+    metadata:
+      labels:
+        app: us
+    spec:
+      containers:
+        - name: us
+          image: US/Dockerfile
+          ports:
+            - containerPort: 8080
+metadata:
+  name: us-deployment
+
+---
+apiVersion: apps/v1
+kind: Deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: as
+  template:
+    metadata:
+      labels:
+        app: as
+    spec:
+      containers:
+        - name: as
+          image: AS/Dockerfile
+          ports:
+            - containerPort: 53533
+metadata:
+  name: as-deployment
+
